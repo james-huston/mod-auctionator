@@ -19,7 +19,7 @@ AuctionatorSeller::~AuctionatorSeller()
     // TODO: clean up
 };
 
-void AuctionatorSeller::LetsGetToIt(uint32 itemClass, uint32 subClass, uint32 maxCount)
+void AuctionatorSeller::LetsGetToIt(uint32 itemClass, uint32 subClass, uint32 bonding, uint32 maxCount)
 {
     std::string itemQuery = R"(
         SELECT
@@ -39,7 +39,7 @@ void AuctionatorSeller::LetsGetToIt(uint32 itemClass, uint32 subClass, uint32 ma
             1
             AND aic.class = {}
             AND aic2.subclass = {}
-            AND it.bonding = 0
+            AND it.bonding = {}
             AND it.Flags != 16
             AND it.BuyPrice > 0
         ORDER BY RAND()
@@ -51,6 +51,7 @@ void AuctionatorSeller::LetsGetToIt(uint32 itemClass, uint32 subClass, uint32 ma
         itemQuery,
         itemClass,
         subClass,
+        bonding,
         maxCount
     );
 
@@ -67,6 +68,8 @@ void AuctionatorSeller::LetsGetToIt(uint32 itemClass, uint32 subClass, uint32 ma
         count++;
         Field* fields = result->Fetch();
         std::string itemName = fields[1].Get<std::string>();
+
+        nator->logInfo("Adding item: " + itemName);
 
         AuctionatorItem newItem = AuctionatorItem();
         newItem.itemId = fields[0].Get<uint32>();
